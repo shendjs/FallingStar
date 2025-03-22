@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=devic-width, initial-scale=1.0">
+    <title>Falling Star</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #000111, #001833);
+            position: relative;
+        }
+        .stars-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #ffffff;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ffffff 50%, transparent);
+            opacity: 0;
+            transform: rotate(45deg);
+        }
+        .moon {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ccc, #ffffff);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            top: 50px;
+            right: 80px;
+        }
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(200, 200, 200, 0.5);
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.2; }
+        }
+        @keyframes shootingStar {
+            0% { 
+                opacity: 0; 
+                transform: translateX(0) translateY(0) rotate(45deg);
+                width: 2px;
+            }
+            10% { 
+                opacity: 1; 
+                width: 100px;
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateX(1000px) translateY(1000px) rotate(45deg);
+                width: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container" id="starsContainer"></div>
+    <div class="moon"></div>
+    <script>
+        const starsContainer = document.getElementById('starsContainer');
+        const starCount = 400; // Increased the number of stars
+        const stars = [];
+        
+        // Regular stars
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            // Stars of different sizes
+            const size = Math.random() * 3 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // Random positioning
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            
+            // Twinkling effect
+            const twinkleDuration = 2 + Math.random() * 6;
+            star.style.animation = `twinkle ${twinkleDuration}s infinite`;
+            star.style.boxShadow = `0 0 ${size + 2}px #ffffff, 0 0 ${size + 4}px #ffffff`;
+            star.style.opacity = Math.random() * 0.5 + 0.1;
+            
+            starsContainer.appendChild(star);
+            
+            // Define the speed and direction of the stars
+            const direction = Math.random() > 0.5 ? 1 : -1; // Some stars move upwards
+            stars.push({ 
+                element: star, 
+                speed: Math.random() * 0.3 + 0.05, 
+                direction: direction,
+                size: size,
+                twinkleSpeed: Math.random() * 0.01
+            });
+        }
+        
+        // Shooting star effect
+        function createShootingStar() {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            
+            // Random starting position
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * (window.innerHeight / 3);
+            
+            shootingStar.style.left = `${startX}px`;
+            shootingStar.style.top = `${startY}px`;
+            
+            // Animation
+            const duration = 1 + Math.random() * 2;
+            shootingStar.style.animation = `shootingStar ${duration}s ease-out`;
+            
+            starsContainer.appendChild(shootingStar);
+            
+            // Remove the element after the animation ends
+            setTimeout(() => {
+                shootingStar.remove();
+            }, duration * 1000);
+        }
+        
+        // Create shooting stars at regular intervals
+        setInterval(createShootingStar, 3000);
+        
+        function animateStars() {
+            stars.forEach(star => {
+                let top = parseFloat(star.element.style.top);
+                let left = parseFloat(star.element.style.left);
+                
+                // Move stars up or down
+                top += star.speed * star.direction * 0.1;
+                
+                // Reset position when out of screen
+                if (top > 100 || top < 0) {
+                    top = star.direction > 0 ? 0 : 100;
+                    left = Math.random() * 100;
+                    
+                    // Assign new brightness and size to the newly created star
+                    const newSize = Math.random() * 3 + 1;
+                    star.element.style.width = `${newSize}px`;
+                    star.element.style.height = `${newSize}px`;
+                    star.element.style.boxShadow = `0 0 ${newSize + 2}px #ffffff, 0 0 ${newSize + 4}px #ffffff`;
+                    star.size = newSize;
+                }
+                
+                star.element.style.top = `${top}%`;
+                star.element.style.left = `${left}%`;
+            });
+            
+            requestAnimationFrame(animateStars);
+        }
+        
+        // Move the stars
+        animateStars();
+    </script>
+</body>
+</html>
